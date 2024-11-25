@@ -45,4 +45,7 @@ interface IChainlinkFeedRegistryLike {
      */
     function confirmFeed(address base, address quote, address aggregator) external;
 
+    function decimals(address base, address quote) external view returns (uint8);
+
+    function latestRoundData(address base, address quote) external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);
 }

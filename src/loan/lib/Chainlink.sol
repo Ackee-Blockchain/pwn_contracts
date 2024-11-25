@@ -212,8 +212,7 @@ library Chainlink {
         view
         returns (bool, uint256, uint8)
     {
-        try feedRegistry.getFeed(asset, denominator) returns (IChainlinkAggregatorLike aggregator) {
-            (, int256 price,, uint256 updatedAt,) = aggregator.latestRoundData();
+        try IChainlinkFeedRegistryLike(address(feedRegistry)).latestRoundData(asset, denominator) returns (uint80 roundId, int256 price, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound) {
             if (price < 0) {
                 revert ChainlinkFeedReturnedNegativePrice({ asset: asset, denominator: denominator, price: price });
             }
@@ -221,8 +220,11 @@ library Chainlink {
                 revert ChainlinkFeedPriceTooOld({ asset: asset, denominator: denominator, updatedAt: updatedAt });
             }
 
-            uint8 decimals = aggregator.decimals();
-            return (true, uint256(price), decimals);
+            try IChainlinkFeedRegistryLike(address(feedRegistry)).decimals(asset, denominator) returns (uint8 decimals) {
+                return (true, uint256(price), decimals);
+            } catch {
+                return (false, uint256(price), 0);
+            }
         } catch {
             return (false, 0, 0);
         }
