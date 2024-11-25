@@ -38,7 +38,7 @@ library Chainlink {
     /**
      * @notice Throw when Chainlink feed price is too old.
      */
-    error ChainlinkFeedPriceTooOld(address asset, uint256 updatedAt);
+    error ChainlinkFeedPriceTooOld(address asset, address denominator, uint256 updatedAt);
 
     /**
      * @notice Throw when L2 Sequencer uptime feed returns that the sequencer is down.
@@ -201,7 +201,7 @@ library Chainlink {
                 revert ChainlinkFeedReturnedNegativePrice({ asset: asset, denominator: denominator, price: price });
             }
             if (block.timestamp - updatedAt > MAX_CHAINLINK_FEED_PRICE_AGE) {
-                revert ChainlinkFeedPriceTooOld({ asset: asset, updatedAt: updatedAt });
+                revert ChainlinkFeedPriceTooOld({ asset: asset, denominator: denominator, updatedAt: updatedAt });
             }
 
             uint8 decimals = aggregator.decimals();
