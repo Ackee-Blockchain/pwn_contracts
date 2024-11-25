@@ -116,18 +116,35 @@ library Chainlink {
                     nominatorPrice: creditPrice,
                     nominatorDecimals: creditPriceDecimals,
                     originalDenominator: creditDenominator,
-                    newDenominator: collateralDenominator
+                    newDenominator: collateralDenominator // ETH/USD or BTC/USD
                 });
-            } else {
+            } else if (collateralDenominator == ChainlinkDenominations.USD) {
                 (success, collateralPrice, collateralPriceDecimals) = convertPriceDenominator({
                     feedRegistry: feedRegistry,
                     nominatorPrice: collateralPrice,
                     nominatorDecimals: collateralPriceDecimals,
                     originalDenominator: collateralDenominator,
-                    newDenominator: collateralDenominator == ChainlinkDenominations.USD
-                        ? creditDenominator
-                        : ChainlinkDenominations.ETH
+                    newDenominator: creditDenominator // ETH/USD or BTC/USD
                 });
+            } else {
+                // always use BTC/ETH feed
+                if (creditDenominator == ChainlinkDenominations.ETH) {
+                    (success, creditPrice, creditPriceDecimals) = convertPriceDenominator({
+                        feedRegistry: feedRegistry,
+                        nominatorPrice: creditPrice,
+                        nominatorDecimals: creditPriceDecimals,
+                        originalDenominator: creditDenominator,
+                        newDenominator: collateralDenominator
+                    });
+                } else {
+                    (success, collateralPrice, collateralPriceDecimals) = convertPriceDenominator({
+                        feedRegistry: feedRegistry,
+                        nominatorPrice: collateralPrice,
+                        nominatorDecimals: collateralPriceDecimals,
+                        originalDenominator: collateralDenominator,
+                        newDenominator: creditDenominator
+                    });
+                }
             }
 
             if (!success) {
